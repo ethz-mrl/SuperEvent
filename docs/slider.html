@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 8vh;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            overflow-y: hidden; /* For vertical scrollbar */
+        }
+
+        .switch-toggle {
+            width: clamp(1px, 80vw, 500px);
+            display: flex;
+            justify-content: center;
+            margin-top: 2vh;
+            margin-bottom: 2vh;
+            font-size: clamp(0px, 4vw, 16px);
+        }
+
+        .switch-toggle label:not(.disabled) {
+            cursor: pointer;
+        }
+
+        .content-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2vw;
+            position: relative; /* To position the vertical text */
+        }
+
+        .vertical-text {
+            writing-mode: vertical-rl;
+            font-size: clamp(1px, 2.5vw, 20px);
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
+            padding-right: calc(35px - 2.5vw);
+            position: absolute; /* Position vertically relative to the image */
+            left: -40px; /* Adjust to control horizontal positioning */
+        }
+
+        .top-description {
+            top: 25%; /* Position at the center of the top half */
+            transform: translateY(-50%) rotate(180deg); /* Center the text vertically in the top half */
+            color: rgb(187, 86, 17)
+        }
+
+        .bottom-description {
+            bottom: 25%; /* Position at the center of the bottom half */
+            transform: translateY(50%) rotate(180deg); /* Center the text vertically in the bottom half */
+            color: rgb(35, 83, 78)
+        }
+
+        .image-container {
+            max-width: 100vw; /* Prevents overflow */
+            height: auto;
+            text-align: center;
+            position: relative; /* To position the descriptions relative to the image */
+            margin-bottom: 1vh
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/css-toggle-switch/latest/toggle-switch.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="switch-toggle switch-3 switch-candy">
+        <input id="raw" name="state-d" type="radio" />
+        <label for="raw">Raw</label>
+
+        <input id="kpts" name="state-d" type="radio" />
+        <label for="kpts">Keypoints</label>
+
+        <input id="matches" name="state-d" type="radio" checked />
+        <label for="matches">Matches</label>
+
+        <a></a>
+    </div>
+
+    <div class="content-container">
+        <div class="vertical-text top-description"><small>SuperPoint + SuperGlue</small></div>
+        <div class="image-container">
+            <img id="display-image" src="" alt="Raw Image">
+        </div>
+        <div class="vertical-text bottom-description"><small>SuperEvent</small></div>
+    </div>
+
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param) || "default_";
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let prefix = getQueryParam("prefix");
+
+            const images = {
+                "raw": "static/images/examples/" + prefix + "_raw.jpg",
+                "kpts": "static/images/examples/" + prefix + "_kp.jpg",
+                "matches": "static/images/examples/" + prefix + "_matches.jpg"
+            };
+
+            const radios = document.querySelectorAll("input[name='state-d']");
+            const imgElement = document.getElementById("display-image");
+
+            // Set initial image
+            imgElement.src = images["matches"];
+
+            radios.forEach(radio => {
+                radio.addEventListener("change", function() {
+                    imgElement.src = images[this.id];
+                });
+            });
+        });
+    </script>
+
+    <script>
+        function sendHeight() {
+        const height = document.documentElement.scrollHeight;
+        window.parent.postMessage({ frameHeight: height }, "*");
+        }
+    
+        window.addEventListener("load", sendHeight);
+        window.addEventListener("resize", sendHeight);
+    </script>
+</body>
+</html>

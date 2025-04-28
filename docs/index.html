@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
+  <!-- Replace the content tag with appropriate information -->
+  <meta name="description" content="Project Pager of SuperEvent: Cross-Modal Learning of Event-based Keypoint Detection for SLAM">
+  <meta property="og:title" content="SuperEvent Project Page"/>
+  <meta property="og:description" content="Cross-Modal Learning of Event-based Keypoint Detection for SLAM"/>
+  <meta property="og:url" content="https://smartroboticslab.github.io/SuperEvent/"/>
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X630-->
+  <meta property="og:image" content="static/images/pipeline_white.svg" />
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+
+
+  <meta name="twitter:title" content="SuperEvent Project Page">
+  <meta name="twitter:description" content="Cross-Modal Learning of Event-based Keypoint Detection for SLAM">
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600-->
+  <meta name="twitter:image" content="static/images/pipeline_white.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- Keywords for your paper to be indexed by-->
+  <meta name="keywords" content="event camera, keypoints, detection, description, matching, pose estimation, SLAM, stereo VI-SLAM, event SLAM, stereo event SLAM, computer vision">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <title>SuperEvent Project Page</title>
+  <link rel="icon" type="image/x-icon" href="static/images/eyecon.svg">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+  rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+</head>
+<body>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">SuperEvent: Cross-Modal Learning of Event-based Keypoint Detection for SLAM</h1>
+            <div class="is-size-5 publication-authors">
+              <!-- Paper authors -->
+              <span class="author-block">
+                <a href="https://yannickburkhardt.github.io/" target="_blank">Yannick Burkhardt</a>,</span>
+                <span class="author-block">
+                  <a href="https://simon-schaefer.github.io/" target="_blank">Simon Schaefer</a>,</span>
+                  <span class="author-block">
+                    <a href="https://www.professoren.tum.de/leutenegger-stefan" target="_blank">Stefan Leutenegger</a>
+                  </span>
+                  </div>
+
+                  <div class="is-size-5 publication-authors">
+                    <span class="author-block">
+                      <small><a href="https://srl.cit.tum.de/" target="_blank">Technical University of Munich</a>, <a href="https://mcml.ai/" target="_blank">Munich Center for Machine Learning</a></small><br>
+                  </div>
+
+                  <div class="column has-text-centered">
+                    <div class="publication-links">
+                         <!-- Arxiv PDF link -->
+                      <span class="link-block">
+                        <a href="https://arxiv.org/pdf/2504.00139.pdf" target="_blank"
+                        class="external-link button is-normal is-rounded is-dark">
+                        <span class="icon">
+                          <i class="fas fa-file-pdf"></i>
+                        </span>
+                        <span>Paper</span>
+                      </a>
+                    </span>
+
+                    <!-- Supplementary PDF link -->
+                    <!-- <span class="link-block">
+                      <a href="static/pdfs/supplementary_material.pdf" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fas fa-file-pdf"></i>
+                      </span>
+                      <span>Supplementary</span>
+                    </a>
+                  </span> -->
+
+                  <!-- Github link -->
+                  <span class="link-block">
+                    <a href="https://github.com/smartroboticslab/SuperEvent" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+
+                <!-- ArXiv abstract Link -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/2504.00139" target="_blank"
+                  class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Image carousel -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Qualitative Results</h2></h2>
+      <div id="results-carousel" class="carousel results-carousel" style="--carousel-max-width: 950px;">
+       <div class="item">
+        <iframe class="dynamic-iframe" src="slider.html?prefix=ddd20_rec1499023756_00000867_00000883" width="100%" style="margin: 0 auto; display: block;"></iframe>
+        <!-- Your image here -->
+        <h2 class="subtitle has-text-centered">
+          Unseen sequence rec1499023756 of the DAVIS Driving Dataset 2020 (DDD20).
+        </h2>
+      </div>
+      <div class="item">
+        <!-- Your image here -->
+        <iframe class="dynamic-iframe" src="slider.html?prefix=ddd20_rec1501614399_00007769_00007779" width="100%" style="margin: 0 auto; display: block;"></iframe>
+        <h2 class="subtitle has-text-centered">
+          Unseen sequence rec1501614399 of the DAVIS Driving Dataset 2020 (DDD20).
+        </h2>
+      </div>
+      <div class="item">
+        <!-- Your image here -->
+        <iframe class="dynamic-iframe" src="slider.html?prefix=fpv_indoor_45_14_davis_with_gt_00001659_00001660" width="100%" style="margin: 0 auto; display: block;"></iframe>
+        <h2 class="subtitle has-text-centered">
+          Unseen sequence Indoor 45° downward facing 14 of the UZH-FPV Drone Racing dataset.
+       </h2>
+     </div>
+     <div class="item">
+      <!-- Your image here -->
+      <iframe class="dynamic-iframe" src="slider.html?prefix=vivid_varying_robust_00000461_00000482" width="100%" style="margin: 0 auto; display: block;"></iframe>
+      <h2 class="subtitle has-text-centered">
+        Unseen sequence Varying Robust of the Vision for Visibility Dataset (ViViD++).
+      </h2>
+    </div>
+  </div>
+</div>
+</div>
+</section>
+<!-- End image carousel -->
+
+<!-- Paper abstract -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-normal">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Event-based keypoint detection and matching holds significant potential, enabling the integration of event sensors into highly optimized Visual SLAM systems developed for frame cameras over decades of research. Unfortunately, existing approaches struggle with the motion-dependent appearance of keypoints and the complex noise prevalent in event streams, resulting in severely limited feature matching capabilities and poor performance on downstream tasks. To mitigate this problem, we propose SuperEvent, a data-driven approach to predict stable keypoints with expressive descriptors. Due to the absence of event datasets with ground truth keypoint labels, we leverage existing frame-based keypoint detectors on readily available event-aligned and synchronized gray-scale frames for self-supervision: we generate temporally sparse keypoint pseudo-labels considering that events are a product of both scene appearance and camera motion. Combined with our novel, information-rich event representation, we enable SuperEvent to learn robust keypoint detection and description in event streams. Finally, we demonstrate the usefulness of SuperEvent by its integration into a modern sparse keypoint and descriptor-based SLAM framework originally developed for traditional cameras, surpassing the state-of-the-art in event-based SLAM by a wide margin.
+          </p>
+        </div>
+          <div class="item">
+            <img src="static/images/pipeline_white.svg" alt="SuperEvent Pipeline"/>
+            <h2 class="subtitle has-text-centered">
+              Data processing pipeline for training and inference of SuperEvent.
+            </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End paper abstract -->
+
+
+
+<!-- Youtube video -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+      <!-- Paper video. -->
+      <h2 class="title is-3 has-text-centered">Video Presentation</h2>
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          
+          <div class="publication-video">
+            <!-- Youtube embed code here -->
+            <iframe src="https://www.youtube.com/embed/QHhXv86gsVY" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End youtube video -->
+
+
+<!-- Image carousel -->
+<section class="hero is-small is-light">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Advantages of Event Camera Matching</h2></h2>
+      <div id="results-carousel" class="carousel results-carousel" style="--carousel-max-width: 950px;">
+       <div class="item">
+        <iframe class="dynamic-iframe" src="slider.html?prefix=fpv_outdoor_45_2_davis_00002149_00002150" width="100%" style="margin: 0 auto; display: block;"></iframe>
+        <!-- Your image here -->
+        <h2 class="subtitle has-text-centered">
+          Frame with motion blur (UZH-FPV, Outdoor 45° downward facing 2).
+        </h2>
+      </div>
+      <div class="item">
+        <!-- Your image here -->
+        <iframe class="dynamic-iframe" src="slider.html?prefix=fpv_indoor_45_14_davis_with_gt_00000960_00000961" width="100%" style="margin: 0 auto; display: block;"></iframe>
+        <h2 class="subtitle has-text-centered">
+          Frame with motion blur (UZH-FPV, Indoor 45° downward facing 14).
+        </h2>
+      </div>
+      <div class="item">
+        <!-- Your image here -->
+        <iframe class="dynamic-iframe" src="slider.html?prefix=fpv_outdoor_45_1_davis_with_gt_00001266_00001267" width="100%" style="margin: 0 auto; display: block;"></iframe>
+        <h2 class="subtitle has-text-centered">
+          Frame with motion blur (UZH-FPV, Outdoor 45° downward facing 1).
+       </h2>
+     </div>
+     <div class="item">
+      <!-- Your image here -->
+      <iframe class="dynamic-iframe" src="slider.html?prefix=ddd20_rec1501614399_00004869_00004870" width="100%" style="margin: 0 auto; display: block;"></iframe>
+      <h2 class="subtitle has-text-centered">
+        HDR: frame overexposed (DDD20, rec1501614399).
+      </h2>
+    </div>
+    <div class="item">
+      <!-- Your image here -->
+      <iframe class="dynamic-iframe" src="slider.html?prefix=ddd20_rec1502599151_00005180_00005181" width="100%" style="margin: 0 auto; display: block;"></iframe>
+      <h2 class="subtitle has-text-centered">
+        HDR: frame underexposed (DDD20, rec1502599151).
+      </h2>
+    </div>
+    <div class="item">
+      <!-- Your image here -->
+      <iframe class="dynamic-iframe" src="slider.html?prefix=vivid_varying_robust_00000429_00000430" width="100%" style="margin: 0 auto; display: block;"></iframe>
+      <h2 class="subtitle has-text-centered">
+        HDR: frame underexposed since light is turned off, many negative events (ViViD++, Varying Robust).
+      </h2>
+    </div>
+  </div>
+</div>
+</div>
+</section>
+<!-- End image carousel -->
+
+
+<!-- Video carousel -->
+<section class="hero is-small">
+  <div class="hero-body">
+    <div class="container">
+      <h2 class="title is-3 has-text-centered">Stereo Event VI-SLAM (<a href="https://github.com/smartroboticslab/okvis2" target="_blank">OKVIS2</a> Integration)</h2>
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-video1">
+          <video poster="" id="video1" autoplay controls muted loop height="100%">
+            <!-- Your video file here -->
+            <source src="static/videos/slam_desk.mp4"
+            type="video/mp4">
+          </video>
+          <h2 class="subtitle has-text-centered">
+            Small scale trajectory estimation on the sequence mocap-desk of the TUM-VIE dataset.
+          </h2>
+        </div>
+        <div class="item item-video2">
+          <video poster="" id="video2" autoplay controls muted loop height="100%">
+            <!-- Your video file here -->
+            <source src="static/videos/slam_loop.mp4"
+            type="video/mp4">
+          </video>
+          <h2 class="subtitle has-text-centered">
+            Large scale trajectory estimation with loop closure on the sequence loop-floor0 of the TUM-VIE dataset.
+          </h2>
+        </div>
+        <div class="item has-text-centered">
+          <!-- Your image here -->
+          <img src="static/images/okvis_results.jpg" alt="Event SLAM quantitative results" width="95%" margin="0 auto"/>
+          <h2 class="subtitle has-text-centered">
+            Quantitative results on the TUM-VIE mocap-sequences.
+          </h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End video carousel -->
+
+
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@misc{burkhardt2025superevent,
+      title={SuperEvent: Cross-Modal Learning of Event-based Keypoint Detection}, 
+      author={Yannick Burkhardt and Simon Schaefer and Stefan Leutenegger},
+      year={2025},
+      url={https://arxiv.org/abs/2504.00139}}</code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+
+
+  <footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            You are free to borrow the source code of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Statcounter tracking code -->
+  
+<!-- You can add a tracker to track page visits by creating an account at statcounter.com -->
+
+    <!-- End of Statcounter Code -->
+
+  <script>
+    function receiveMessage(event) {
+      if (event.data.frameHeight) {
+        const iframes = document.querySelectorAll(".dynamic-iframe");
+        iframes.forEach((iframe) => {
+          if (iframe.contentWindow === event.source) {
+            iframe.style.height = event.data.frameHeight + "px";
+          }
+        });
+      }
+    }
+  
+    window.addEventListener("message", receiveMessage, false);
+  </script>
+
+  <script>
+    // Function to mute all videos and prevent unmuting
+    function muteAllVideos() {
+        const videos = document.querySelectorAll('video');
+        
+        videos.forEach(video => {
+            // Mute the video on load
+            video.muted = true;
+
+            // Prevent unmuting by checking volume change
+            video.addEventListener('volumechange', function() {
+                if (video.volume > 0) {
+                    video.muted = true;  // If volume is unmuted, mute it again
+                }
+            });
+        });
+    }
+
+    // Call the function to mute all videos when the page loads
+    window.addEventListener('load', muteAllVideos);
+  </script>
+
+  <style>
+    /* Hide the mute button on native controls (This is not a full disable) */
+    video::-webkit-media-controls-volume-slider {
+        display: none; /* Hides the volume control on WebKit browsers (Chrome, Safari) */
+    }
+
+    /* Additional fallback for Firefox */
+    video::-moz-media-controls-volume-slider {
+        display: none;
+    }
+
+    /* Disable the mute button by applying a greyed-out effect */
+    video[muted]::-webkit-media-controls-mute-button {
+        filter: grayscale(100%) opacity(50%);  /* Grey out the mute button */
+        pointer-events: none;  /* Make it unclickable */
+    }
+  </style>
+
+</body>
+</html>
