@@ -1,0 +1,70 @@
+# Data
+train_data_path: /storage/user/burkhary/datasets/SuperEvent_data
+shuffle_data: True
+max_num_samples_per_sequence_train:
+  mvsec: 7000
+  fpv: 1500
+  griffin: 4000
+max_num_samples_per_sequence_val:
+  ddd20: 1000
+  fpv: 500
+  griffin: 750
+dataset_names:
+  - mvsec
+  - vivid
+  - ddd20
+  - fpv
+  - griffin
+
+val_sequences:
+  - mvsec: [indoor_flying4]
+  - vivid: [global_robust]
+  - ddd20: [rec1501288723]
+  - fpv: [indoor_45_4_davis_with_gt, indoor_forward_10_davis_with_gt, outdoor_forward_5_davis_with_gt]
+  - griffin: [Soccer_Base_3, Testbed_ArUco_3]
+
+test_sequences:
+  - mvsec: [outdoor_night1]
+  - vivid: [dark_aggresive, dark_robust, dark_unstable, varying_robust]
+  - ddd20: [rec1498946027, rec1498949617, rec1499023756, rec1499275182, rec1499533882, rec1499656391, rec1499657850, rec1500383971, rec1501614399, rec1501650719, rec1501651162, rec1501994881, rec1502336427, rec1502337436, rec1502338023, rec1502338983, rec1502339743, rec1502599151]
+  - fpv: [indoor_45_14_davis_with_gt, indoor_45_16_davis, outdoor_45_1_davis_with_gt, outdoor_45_2_davis]
+  - ecd: [shapes_6dof, boxes_6dof, poster_6dof, outdoors_walking, outdoors_running, dynamic_6dof]
+
+# Network
+backbone: maxvit  # vgg or maxvit
+input_representation: mcts  # mcts, mcts_1, ts or tencod
+input_channels: 10
+feature_channels: 128
+backbone_output_channels: 128
+grid_size: 8
+descriptor_size: 256
+pixel_wise_predictions: False
+
+# Loss
+positive_margin: 1
+negative_margin: 0.2
+lambda_d: 0.5
+lambda_loss: 10
+detector_loss_alpha: 0.75
+detector_loss_gamma: 2.0
+double_softmax_loss_temperature: 0.1
+
+# Training
+learning_rate: 0.001
+batch_size: 1
+epochs: 10
+num_batches_train_logging: 100
+num_train_samples_before_validation: 5000
+max_num_validation_samples: 5000
+ts_dropout: 0.0
+temporal_matching:
+  enable: True
+homography_adaptation:
+  enable: False
+  difficulty: 0.5
+  max_angle: 45
+  resize_factor: -1
+
+# Evaluation
+detection_threshold: 0.01
+nms_box_size: 5

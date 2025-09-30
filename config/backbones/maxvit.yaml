@@ -1,0 +1,42 @@
+backbone_config:
+  name: MaxViTRNN
+  compile:
+    enable: False
+    args:
+      mode: reduce-overhead
+  enable_masking: False
+  embed_dim: 32 
+  dim_multiplier: [1, 2, 4]
+  num_blocks: [1, 1, 1]
+  T_max_chrono_init: [4, 8, 16]  # assigned in code, but unused
+  stem:
+    patch_size: 2  # downsampling factor in first layer
+  stage:
+    downsample:
+      type: patch
+      overlap: True
+      norm_affine: True
+    attention:
+      use_torch_mha: False
+      partition_size: 5
+      dim_head: 8
+      attention_bias: True
+      mlp_activation: gelu
+      mlp_gated: False
+      mlp_bias: True
+      mlp_ratio: 4
+      drop_mlp: 0.
+      drop_path: 0.
+      ls_init_value: 0.00005  # 1e-5
+      norm_eps: 0.00005  # 1e-5
+  fpn:
+    name: PAFPN
+    compile:
+      enable: False
+      args:
+        mode: reduce-overhead
+    depth: 0.67 # round(depth * 3) == num bottleneck blocks
+    # stage 1 is the first and len(num_layers) is the last
+    in_stages: [1, 2, 3]
+    depthwise: False
+    act: "silu"

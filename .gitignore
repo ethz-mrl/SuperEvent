@@ -1,0 +1,7 @@
+*.pyc
+*.sbatch
+
+logs/*
+results/*
+runs/*
+slurm/*
