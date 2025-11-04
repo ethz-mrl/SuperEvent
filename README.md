@@ -1,13 +1,18 @@
 <h2 align="center">
   <b>SuperEvent: Cross-Modal Learning of Event-based Keypoint Detection for SLAM</b>
   <br>
-  <b><i>ICCV 2025 (Highlight Paper)</i></b>
+  <small>ICCV 2025 (Highlight)</small>
+  <br>
+  <small>🏆 Winner: IROS 2025 EvSLAM Challenge</small>
+  <br>
 
 <div align="center">
     <a href="https://arxiv.org/abs/2504.00139" target="_blank">
     <img src="https://img.shields.io/badge/Paper-arXiv-green" alt="Paper arXiv"></a>
+    <a href="https://openaccess.thecvf.com/content/ICCV2025/html/Burkhardt_SuperEvent_Cross-Modal_Learning_of_Event-based_Keypoint_Detection_for_SLAM_ICCV_2025_paper.html" target="_blank">
+    <img src="https://img.shields.io/badge/Paper-ICCV-blue" alt="Paper arXiv"></a>
     <a href="https://ethz-mrl.github.io/SuperEvent/" target="_blank">
-    <img src="https://img.shields.io/badge/Page-SuperEvent-blue" alt="Project Page"/></a>
+    <img src="https://img.shields.io/badge/Page-SuperEvent-darkgreen" alt="Project Page"/></a>
     <a href="https://youtu.be/YWBr8oChfDE" target="_blank">
     <img src="https://img.shields.io/badge/Video-YouTube-red"></a>
 </div>
@@ -17,7 +22,8 @@
     <img src="docs/static/images/examples/ddd20_rec1499023756_00000867_00000883_matches.jpg" alt="SuperEvent matches and pseudo labels from test set" width="750">
 </div>
 
-This is the official repository of [**SuperEvent: Cross-Modal Learning of Event-based Keypoint Detection for SLAM**](https://arxiv.org/abs/2504.00139). For more details, please check our [**project page**](https://ethz-mrl.github.io/SuperEvent/).
+This is the official repository of [**SuperEvent: Cross-Modal Learning of Event-based Keypoint Detection for SLAM**](https://arxiv.org/abs/2504.00139).  
+For more details, please check our [**project page**](https://ethz-mrl.github.io/SuperEvent/).
 
 ## Installation
 
@@ -52,7 +58,7 @@ export PYTHONPATH=$PYTHONPATH:$PWD
 3. Create pseudo labels using SuperPoint + SuperGlue.
 4. Divide sequences into 'train', 'val' and 'test' sets.
 
-Bash script to execute this pipeline
+Bash script to execute this pipeline:
 ```bash
 ./data_preparation/prepare_training_data.sh -d path/to/dataset
 ```
@@ -93,10 +99,12 @@ Shows matched keypoints from SuperEvent inference on test set with SuperPoint + 
 ## Citation
 If you find our work useful, please cite:
 ```bibtex
-@Article{Burkhardt25iccv,
-  author    = {Yannick Burkhardt and Simon Schaefer and Stefan Leutenegger},
-  title     = {SuperEvent: Cross-Modal Learning of Event-based Keypoint Detection for SLAM},
-  booktitle = {2025 IEEE/CVF International Conference on Computer Vision},
-  year      = {2025}
+@InProceedings{Burkhardt_2025_ICCV,
+    author    = {Burkhardt, Yannick and Schaefer, Simon and Leutenegger, Stefan},
+    title     = {SuperEvent: Cross-Modal Learning of Event-based Keypoint Detection for SLAM},
+    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+    month     = {October},
+    year      = {2025},
+    pages     = {8918-8928}
 }
 ```
