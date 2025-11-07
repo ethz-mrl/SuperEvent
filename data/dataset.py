@@ -83,11 +83,6 @@ class TsDataset(Dataset):
 
         # Get paths of all sequences
         self.sequence_paths = [f.path for f in os.scandir(data_base_path) if f.is_dir()]
-
-        # Create lists of all time surfaces
-        self.ts_seq_list = [sorted(
-            [p for p in glob(os.path.join(seq, "time_surfaces", "*.npz")) if "_" not in os.path.basename(p)]
-            ) for seq in self.sequence_paths]
         
         # Create lists of all match and valid indeces files
         if demo:
@@ -133,9 +128,9 @@ class TsDataset(Dataset):
         matches = dict(np.load(self.kp_seq_list[seq][seq_idx], allow_pickle=True))
 
         # Time surface (input)
-        ts0 = load_ts_sparse(self.ts_seq_list[seq][int(matches["image_id0"])]).astype(np.float32)
+        ts0 = load_ts_sparse(os.path.join(self.sequence_paths[seq], "time_surfaces/" + matches["image_id0"] + ".npz")).astype(np.float32)
         if self.config["temporal_matching"]["enable"]:
-            ts1 = load_ts_sparse(self.ts_seq_list[seq][int(matches["image_id1"])]).astype(np.float32)
+            ts1 = load_ts_sparse(os.path.join(self.sequence_paths[seq], "time_surfaces/" + matches["image_id1"] + ".npz")).astype(np.float32)
         else:
             # Only use ts0 and and match with itself after homographic adaption
             ts1 = ts0.copy()
@@ -166,15 +161,15 @@ class TsDataset(Dataset):
         if self.vis_mode:
             # Load grayscale frames
             assert not self.config["homography_adaptation"]["enable"], "Not supported."
-            frame_dir = os.path.join(os.path.dirname(os.path.dirname(self.ts_seq_list[seq][int(matches["image_id0"])])), "frames")
+            frame_dir = os.path.join(self.sequence_paths[seq], "frames")
             frame0_path = os.path.join(frame_dir, str(matches["image_id0"]) + ".png")
             frame1_path = os.path.join(frame_dir, str(matches["image_id1"]) + ".png")
             frame0 = cv2.imread(frame0_path)
             frame1 = cv2.imread(frame1_path)
 
             # Add string with additional information
-            dataset_name = os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(self.ts_seq_list[seq][int(matches["image_id0"])]))))
-            sequence_name = os.path.basename(os.path.dirname(os.path.dirname(self.ts_seq_list[seq][int(matches["image_id0"])])))
+            dataset_name = os.path.basename(os.path.dirname(self.sequence_paths[seq]))
+            sequence_name = os.path.basename(self.sequence_paths[seq])
             identifier = dataset_name + "_" + sequence_name + "_" + str(matches["image_id0"]) + "_" + str(matches["image_id1"])
 
         # Filter all keypoints to lie within the image bounds

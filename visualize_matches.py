@@ -26,11 +26,6 @@ parser.add_argument("--save_dir", default="", help="Save figures in this directo
 parser.add_argument("--demo", default=False, action=argparse.BooleanOptionalAction, help="Show matches for samples with few matches in the corresponding frames.")
 args = parser.parse_args()
 
-# Flip images for some datasets
-flip_img = False
-if args.dataset == "ddd20" or args.dataset == "vivid":
-    flip_img = True
-
 if args.save_dir:
     os.makedirs(args.save_dir, exist_ok=True)
 
@@ -96,6 +91,7 @@ print("Showing matches on test set. Press and key for the next sample and 'q' to
 with torch.inference_mode():
     for i, data in enumerate(test_dataloader):
         # Compute prediction and loss
+        sample_info = data[6][0]
         data_on_device = list2device(data[:4], device)
         ts0 = data_on_device[0]
         ts1 = data_on_device[1]
@@ -108,12 +104,17 @@ with torch.inference_mode():
         img0 = ts2image(img0)
         img1 = ts2image(img1)
 
+        # Flip images for some datasets
+        flip = False
+        if sample_info[:5] == "ddd20" or sample_info[:5] == "vivid":
+            flip = True
+
         if args.save_dir:
             resize_factor = 1080 / data[4].shape[1]
             frames = np.hstack([resize_and_make_border(data[4][0].detach().numpy(), resize_factor=resize_factor), resize_and_make_border(data[5][0].detach().numpy(), resize_factor=resize_factor)])
-            if flip_img:
+            if flip:
                 frames = frames[::-1]
-            cv2.imwrite(os.path.join(args.save_dir, data[6][0] + "_frames.jpg"), frames)
+            cv2.imwrite(os.path.join(args.save_dir, sample_info + "_frames.jpg"), frames)
         else:
             resize_factor = 1.0
             save_frame_path = ""
@@ -122,14 +123,15 @@ with torch.inference_mode():
                            resize_and_make_border(data[5][0].detach().numpy(), resize_factor=resize_factor),
                            title="Ground truth matches",
                            waitkey=False, return_image=(args.save_dir != ""),
-                           resize_factor=resize_factor)
+                           resize_factor=resize_factor,
+                           flip=flip)
         if args.save_dir:
-            if flip_img:
+            if flip:
                 frames_det = frames_det[::-1]
                 labels_img = labels_img[::-1]
-            cv2.imwrite(os.path.join(args.save_dir, data[6][0] + "_frames_det.jpg"), frames_det)
-            cv2.imwrite(os.path.join(args.save_dir, data[6][0] + "_frames_matched.jpg"), labels_img)
-        print("Matches for", data[6][0])
+            cv2.imwrite(os.path.join(args.save_dir, sample_info + "_frames_det.jpg"), frames_det)
+            cv2.imwrite(os.path.join(args.save_dir, sample_info + "_frames_matched.jpg"), labels_img)
+        print("Matches for", sample_info)
 
         # Inference
         results = model(torch.cat([ts0, ts1], dim=0))
@@ -157,9 +159,9 @@ with torch.inference_mode():
             img0 = resize_and_make_border(img0, resize_factor=resize_factor)
             img1 = resize_and_make_border(img1, resize_factor=resize_factor)
             ts_img = np.hstack([img0, img1])
-            if flip_img:
+            if flip:
                 ts_img = ts_img[::-1]
-            cv2.imwrite(os.path.join(args.save_dir, data[6][0] + "_ts.jpg"), ts_img)
+            cv2.imwrite(os.path.join(args.save_dir, sample_info + "_ts.jpg"), ts_img)
         for kp in kpts0:
             img0 = cv2.circle(img0, (round(kp.pt[0]), round(kp.pt[1])), radius=math.ceil(3*resize_factor), color=(78, 83, 35), thickness=math.ceil(resize_factor))
         for kp in kpts1:
@@ -167,25 +169,25 @@ with torch.inference_mode():
         
         if args.save_dir:
             ts_det_img = np.hstack([img0, img1])
-            if flip_img:
+            if flip:
                 ts_det_img = ts_det_img[::-1]
-            cv2.imwrite(os.path.join(args.save_dir, data[6][0] + "_ts_det.jpg"), ts_det_img)
+            cv2.imwrite(os.path.join(args.save_dir, sample_info + "_ts_det.jpg"), ts_det_img)
         matched_ts = cv2.drawMatches(img0, kpts0, img1, kpts1, matches,
                                         None, matchColor=(78, 83, 35),
                                         singlePointColor=(78, 83, 35),
                                         matchesThickness=math.ceil(resize_factor),
                                         flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+        if flip:
+            matched_ts = matched_ts[::-1]
 
         if args.save_dir:
-            if flip_img:
-                matched_ts = matched_ts[::-1]
             matched_frames_ts = np.concatenate((labels_img, 255 * np.ones([matched_ts.shape[0] // 25, matched_ts.shape[1], 3], dtype=np.uint8), matched_ts), axis=0)
             kp_frames_ts = np.concatenate((frames_det, 255 * np.ones([ts_det_img.shape[0] // 25, ts_det_img.shape[1], 3], dtype=np.uint8), ts_det_img), axis=0)
             raw_frames_ts = np.concatenate((frames, 255 * np.ones([ts_img.shape[0] // 25, ts_img.shape[1], 3], dtype=np.uint8), ts_img), axis=0)
-            cv2.imwrite(os.path.join(args.save_dir, data[6][0] + "_ts_matched.jpg"), matched_ts)
-            cv2.imwrite(os.path.join(args.save_dir, data[6][0] + "_matches.jpg"), matched_frames_ts) 
-            cv2.imwrite(os.path.join(args.save_dir, data[6][0] + "_kp.jpg"), kp_frames_ts)
-            cv2.imwrite(os.path.join(args.save_dir, data[6][0] + "_raw.jpg"), raw_frames_ts)
+            cv2.imwrite(os.path.join(args.save_dir, sample_info + "_ts_matched.jpg"), matched_ts)
+            cv2.imwrite(os.path.join(args.save_dir, sample_info + "_matches.jpg"), matched_frames_ts)
+            cv2.imwrite(os.path.join(args.save_dir, sample_info + "_kp.jpg"), kp_frames_ts)
+            cv2.imwrite(os.path.join(args.save_dir, sample_info + "_raw.jpg"), raw_frames_ts)
         else:
             cv2.imshow("SuperEvent matches", matched_ts)
             if (cv2.waitKey(0) & 0xFF) == ord('q'):

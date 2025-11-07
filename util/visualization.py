@@ -43,7 +43,7 @@ def visualize_time_surface(ts):
     cv2.imshow("Time Surface", ts)
     cv2.waitKey(0)
 
-def visualize_matches(kp_maps, img0, img1, title="Matches", waitkey=True, return_image=False, resize_factor=1.0):
+def visualize_matches(kp_maps, img0, img1, title="Matches", waitkey=True, return_image=False, resize_factor=1.0, flip=False):
     matches = kp_map2matches(kp_maps)
     kp0 = [cv2.KeyPoint(float(resize_factor * p[1]), float(resize_factor * p[0]), 1) for p in matches[0]]
     kp1 = [cv2.KeyPoint(float(resize_factor * p[1]), float(resize_factor * p[0]), 1) for p in matches[1]]
@@ -64,6 +64,8 @@ def visualize_matches(kp_maps, img0, img1, title="Matches", waitkey=True, return
                                     singlePointColor=(17, 86, 187),
                                     matchesThickness=round(resize_factor),
                                     flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+    if flip:
+        matched_img = matched_img[::-1]
 
     if return_image:
         frames_det = np.hstack([img0, img1])

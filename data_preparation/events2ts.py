@@ -116,7 +116,7 @@ if __name__ == "__main__":
             ts = ts_gen.get_ts().numpy()
 
             # Directly save ts to not run out of RAM
-            output_ts_path = os.path.join(args.out_dir, f"{str(ts_idx).zfill(8)}.npy")
+            output_ts_path = os.path.join(args.out_dir, f"{str(ts_idx).zfill(8)}")
             data_io.save_ts_sparse(output_ts_path, ts)
             ts_idx += 1
             add_ts_idx = 0
@@ -130,7 +130,7 @@ if __name__ == "__main__":
             ts = ts_gen.get_ts()
 
             # Directly save ts to not run out of RAM
-            output_ts_path = os.path.join(args.out_dir, f"{str(ts_idx).zfill(8)}_{str(add_ts_idx).zfill(4)}.npy")
+            output_ts_path = os.path.join(args.out_dir, f"{str(ts_idx).zfill(8)}_{str(add_ts_idx).zfill(4)}")
             data_io.save_ts_sparse(output_ts_path, ts)
             add_ts_idx += 1
 
@@ -140,7 +140,7 @@ if __name__ == "__main__":
         ts_gen.update(events_t[i], events_x[i], events_y[i], events_p[i])
 
     if timestamp > 0.:
-        output_ts_path = os.path.join(args.out_dir, f"{str(ts_idx).zfill(8)}.npy")
+        output_ts_path = os.path.join(args.out_dir, f"{str(ts_idx).zfill(8)}")
         data_io.save_ts_sparse(output_ts_path, ts)
         ts_idx += 1
 

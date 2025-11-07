@@ -1,5 +1,5 @@
 # Data
-train_data_path: /storage/user/burkhary/datasets/SuperEvent_data
+train_data_path: ./example_data
 shuffle_data: True
 max_num_samples_per_sequence_train:
   mvsec: 7000
@@ -28,7 +28,6 @@ test_sequences:
   - vivid: [dark_aggresive, dark_robust, dark_unstable, varying_robust]
   - ddd20: [rec1498946027, rec1498949617, rec1499023756, rec1499275182, rec1499533882, rec1499656391, rec1499657850, rec1500383971, rec1501614399, rec1501650719, rec1501651162, rec1501994881, rec1502336427, rec1502337436, rec1502338023, rec1502338983, rec1502339743, rec1502599151]
   - fpv: [indoor_45_14_davis_with_gt, indoor_45_16_davis, outdoor_45_1_davis_with_gt, outdoor_45_2_davis]
-  - ecd: [shapes_6dof, boxes_6dof, poster_6dof, outdoors_walking, outdoors_running, dynamic_6dof]
 
 # Network
 backbone: maxvit  # vgg or maxvit
