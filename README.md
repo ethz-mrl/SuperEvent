@@ -51,6 +51,13 @@ Add SuperEvent root directory to Pythonpath (required in every new terminal)
 export PYTHONPATH=$PYTHONPATH:$PWD
 ```
 
+## Demo
+
+To test the system using the pre-generated files in `example_data` (MCTS + pseudo labels), run
+```bash
+python visualize_matches.py
+```
+
 ## Steps to prepare training data
 
 1. Filter images without event stream at their timestamp.
