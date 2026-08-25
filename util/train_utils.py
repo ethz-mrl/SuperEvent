@@ -40,7 +40,7 @@ def val_loop(dataloader, model, device, config):
 
             # det_loss0, det_loss1, desc_loss are only logged
             loss, det_loss0, det_loss1, desc_loss, pos_desc_loss, neg_desc_loss = super_event_loss(results_ts0["logits"], results_ts1["logits"],
-                                                                                                   results_ts0["descriptors_raw"], results_ts1["descriptors_raw"],
+                                                                                                   results_ts0["descriptor_grid"], results_ts1["descriptor_grid"],
                                                                                                    labels0, labels1, config)
             val_loss += loss
             val_det_loss0 += det_loss0

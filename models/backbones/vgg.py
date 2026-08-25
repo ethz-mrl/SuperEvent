@@ -65,6 +65,35 @@ class VggBackbone(nn.Module):
             else:
                 outputs.append(layer(outputs[-1]))
         return outputs, maxpool_indeces
+
+class VggLiteBackbone(nn.Module):
+    def __init__(self, input_channels, output_channels, return_maxpool_indeces=False):
+        super().__init__()
+        self.return_maxpool_indeces = return_maxpool_indeces
+        self.layers = nn.ModuleList([
+            VggBlock(input_channels, 64, 3),
+            nn.MaxPool2d(kernel_size = 2, stride = 2, return_indices=return_maxpool_indeces),
+
+            VggBlock(64, 64, 3),
+            nn.MaxPool2d(kernel_size = 2, stride = 2, return_indices=return_maxpool_indeces),
+
+            VggBlock(64, 128, 3),
+            nn.MaxPool2d(kernel_size = 2, stride = 2, return_indices=return_maxpool_indeces),
+
+            VggBlock(128, output_channels, 3)
+        ])
+
+    def forward(self, x):
+        outputs = [x]
+        maxpool_indeces = []
+        for layer in self.layers:
+            if self.return_maxpool_indeces and type(layer).__name__ == "MaxPool2d":
+                out, ind = layer(outputs[-1])
+                outputs.append(out)
+                maxpool_indeces.append(ind)
+            else:
+                outputs.append(layer(outputs[-1]))
+        return outputs, maxpool_indeces
     
 class VggBackbone_Upsample(nn.Module):
     def __init__(self, input_channels, output_channels):

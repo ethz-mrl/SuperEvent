@@ -37,6 +37,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     image_path = os.path.join(args.in_dir, "frames")
+    ts_path = os.path.join(args.in_dir, "time_surfaces")
     if args.demo:
         matches_path = os.path.join(args.in_dir, "demo_matches")
         print("Generating demo data.")
@@ -57,7 +58,11 @@ if __name__ == "__main__":
     )
     print(f"Using {device} device")
 
-    image_paths = sorted(glob(os.path.join(image_path, "*.png")))
+    # Filter out all frames that do not have a corresponding time surface
+    image_paths = [p for p in sorted(glob(os.path.join(image_path, "*.png"))) 
+                        if os.path.exists(os.path.join(ts_path, os.path.splitext(os.path.basename(p))[0] + ".npz"))]
+    assert len(image_paths) > 0
+
     image_list = [cv2.imread(path, cv2.IMREAD_GRAYSCALE).astype('float32') for path in image_paths]
     image_shape = image_list[0].shape[:2]
     print("Image shape:", image_shape)
@@ -116,7 +121,7 @@ if __name__ == "__main__":
         else:
             max_amount_of_matches_required = np.min(image_shape) / 5
 
-    # First, remove all static images
+    # Remove all static images
     filtered_image_tensor_list = []
     filtered_image_paths = []
     print("Filtering out images that are static or do not have enough features.")

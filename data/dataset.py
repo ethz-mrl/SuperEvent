@@ -83,7 +83,7 @@ class TsDataset(Dataset):
 
         # Get paths of all sequences
         self.sequence_paths = [f.path for f in os.scandir(data_base_path) if f.is_dir()]
-        
+
         # Create lists of all match and valid indeces files
         if demo:
             self.kp_seq_list = [sorted(glob(os.path.join(seq, "demo_matches", "*.npz"))) for seq in self.sequence_paths]
@@ -265,6 +265,11 @@ class TsDataset(Dataset):
         elif self.config["input_representation"] == "mcts_1":
             ts0 = ts0[[2, 7]]
             ts1 = ts1[[2, 7]]
+
+        if "skip_mcts_channels" in self.config and len(self.config["skip_mcts_channels"]) > 0:
+            keep_idxs = list(set(range(ts0.shape[0])) - set(self.config["skip_mcts_channels"]))
+            ts0 = ts0[keep_idxs]
+            ts1 = ts1[keep_idxs]
 
         if self.vis_mode:
             return ts0, ts1, kp_map0, kp_map1, frame0, frame1, identifier

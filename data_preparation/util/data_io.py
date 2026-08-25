@@ -22,7 +22,7 @@ def load_dataset(dataset, path, required_data):
         only_event_time_range = True
         required_data.append(RequiredData.events)
 
-    supported_datasets = ["ecd", "fpv", "mvsec", "vivid", "ddd20", "griffin", "hdr"]
+    supported_datasets = ["ecd", "fpv", "mvsec", "vivid", "ddd20", "griffin"]
     events = images = image_stamps = calib = 0
     if dataset == supported_datasets[0] or \
        dataset == supported_datasets[3] or \
@@ -56,10 +56,6 @@ def load_dataset(dataset, path, required_data):
             events, images, image_stamps = load_data_ddd20(hdf5_file_list[0], only_event_time_range)
         if RequiredData.calib in required_data:
             calib = load_calib_txt(os.path.join(path, "calib.txt"))
-    elif dataset == supported_datasets[6]:  # hdr
-        mat_file_list = glob.glob(os.path.join(path, "*.mat"))
-        assert len(mat_file_list) == 1, "There should only be one .mat file in folder " + path
-        events, images, image_stamps, calib = load_data_hdr(mat_file_list[0], only_event_time_range)
     else:
         raise NotImplementedError("Dataset", dataset, " is not supported. Supported datasets:", supported_datasets)
     
@@ -199,28 +195,6 @@ def load_data_ddd20(path, only_event_time_range=False):
         image_timestamps = np.array(data["frame_ts"]).reshape([-1])
 
     return events, images, image_timestamps
-
-# ------ HDR exported h5-file -----
-def load_data_hdr(path, only_event_time_range=False):
-    assert os.path.isfile(path)
-
-    data = h5py.File(path, "r")
-
-    if only_event_time_range:
-        events = np.array([data["events"][0][0], data["event"][0][-1]], dtype=np.float32) * 1e-6 
-    else:  # load all events
-        events = np.array(data["events"], dtype=np.float32).transpose()
-        events[:, 0] = events[:, 0] * 1e-6  # convert event timestamp to s
-        # Fix matlab indexing
-        events[:, 1] = events[:, 1] - 1
-        events[:, 2] = events[:, 2] - 1
-
-    images = [np.array(img).transpose() for img in data["image"]]
-    image_timestamps = np.array(data["time_image"]).reshape([-1]) * 1e-6
-
-    calib = np.array([1., 1., 0., 0., 0., 0., 0., 0., 0.])  # Skip undistortion
-
-    return events, images, image_timestamps, calib
 
 # ----- Save time surfaces sparse and compressed ----- #
 def save_ts_sparse(path, np_arr):

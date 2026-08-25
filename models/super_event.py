@@ -1,7 +1,7 @@
 import numpy as np
 from torch import nn
 
-from models.backbones.vgg import VggBackbone, VggBackbone_Upsample
+from models.backbones.vgg import VggBackbone, VggLiteBackbone, VggBackbone_Upsample
 from models.backbones.maxvit import MaxViTBackbone
 from models.backbones.maxvit_backbone.yolo_pafpn import YOLOPAFPN
 from models.heads import DetectorHead, DetectorHeadFullRes, DescriptorHead
@@ -14,6 +14,8 @@ class SuperEvent(nn.Module):
 
         if config["backbone"] == "vgg":
             self.backbone = VggBackbone(input_channels=config["input_channels"], output_channels=config["feature_channels"])
+        elif config["backbone"] == "vgg_lite":
+            self.backbone = VggLiteBackbone(input_channels=config["input_channels"], output_channels=config["feature_channels"])
         elif config["backbone"] == "maxvit":
             self.backbone = MaxViTBackbone(config["backbone_config"])
             self.fpn = YOLOPAFPN(config,
@@ -25,26 +27,25 @@ class SuperEvent(nn.Module):
         else:
             raise NotImplementedError("Backbone", config["backbone"], " is not supported.")
 
-        self.detector = DetectorHead(input_channels=config["backbone_output_channels"], grid_size=config["grid_size"], config=config)
-        self.descriptor = DescriptorHead(input_channels=config["backbone_output_channels"], grid_size=config["grid_size"], descriptor_size=config["descriptor_size"], config=config)
+        self.detector = DetectorHead(input_channels=config["backbone_output_channels"], grid_size=config["grid_size"])
+        self.descriptor = DescriptorHead(input_channels=config["backbone_output_channels"], descriptor_size=config["descriptor_size"])
 
     def forward(self, x):
-        if self.backbone_type == "vgg":
+        if self.backbone_type == "vgg" or self.backbone_type == "vgg_lite":
             features = self.backbone(x)[0][-1]
         elif self.backbone_type == "maxvit":
             backbone_features = self.backbone(x)
             features = self.fpn(backbone_features)
 
         logits, prob = self.detector(features)
-        descriptors_raw, descriptors = self.descriptor(features)
+        descriptor_grid = self.descriptor(features)
 
         if self.tracing:
-            return prob, descriptors
+            return prob, descriptor_grid
         else:
             return {"logits": logits,
                     "prob": prob, 
-                    "descriptors_raw": descriptors_raw, 
-                    "descriptors": descriptors}
+                    "descriptor_grid": descriptor_grid}
     
 class SuperEventFullRes(nn.Module):
     def __init__(self, config, tracing=False):
@@ -67,7 +68,7 @@ class SuperEventFullRes(nn.Module):
             raise NotImplementedError("Backbone", config["backbone"], " is not supported.")
 
         self.detector = DetectorHeadFullRes(input_channels=config["backbone_output_channels"], config=config)
-        self.descriptor = DescriptorHead(input_channels=config["backbone_output_channels"], grid_size=1, descriptor_size=config["descriptor_size"], interpolate=False, config=config)
+        self.descriptor = DescriptorHead(input_channels=config["backbone_output_channels"], descriptor_size=config["descriptor_size"])
 
     def forward(self, x):
         if self.backbone_type == "vgg":
@@ -78,12 +79,11 @@ class SuperEventFullRes(nn.Module):
             features = self.fpn(backbone_features)
 
         logits, prob = self.detector(features)
-        descriptors_raw, descriptors = self.descriptor(features)
+        descriptor_grid = self.descriptor(features)
 
         if self.tracing:
-            return prob, descriptors
+            return prob, descriptor_grid
         else:
             return {"logits": logits,
                     "prob": prob, 
-                    "descriptors_raw": descriptors_raw, 
-                    "descriptors": descriptors}
+                    "descriptor_grid": descriptor_grid}

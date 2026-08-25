@@ -17,7 +17,7 @@ class RemoveLastChannel(nn.Module):
         return torch.index_select(x, dim=1, index=self.indices)
 
 class DetectorHead(nn.Module):
-    def __init__(self, config, input_channels=128, grid_size=8):
+    def __init__(self, input_channels=128, grid_size=8):
         super().__init__()
         self.grid_size = grid_size
         self.remove_dustbin = RemoveLastChannel(65)
@@ -43,9 +43,8 @@ class DetectorHead(nn.Module):
         return x, prob
 
 class DetectorHeadFullRes(nn.Module):
-    def __init__(self, config, input_channels=128):
+    def __init__(self, input_channels=128):
         super().__init__()
-        self.config = config
         self.layers = nn.Sequential(
             VggBlock(input_channels, 256, 3),
             VggBlock(256, 1, 1, activate=False)
@@ -60,29 +59,13 @@ class DetectorHeadFullRes(nn.Module):
         return x, prob
     
 class DescriptorHead(nn.Module):
-    def __init__(self, config, input_channels=128, grid_size=8, descriptor_size=256, interpolate=True):
+    def __init__(self, input_channels=128, descriptor_size=256):
         super().__init__()
-        self.grid_size = grid_size
-        self.descriptor_size = descriptor_size
-        self.interpolate = interpolate
         self.layers = nn.Sequential(
             VggBlock(input_channels, 256, 3),
-            VggBlock(256, self.descriptor_size, 1, activate=False)
+            VggBlock(256, descriptor_size, 1, activate=False)
                 )
 
     def forward(self, x):
         x = self.layers(x)
-
-        if self.interpolate:
-            # PyTorch default is channels first [B, C, H, W]
-            desc_raw_shape = x.shape[2:]
-            input_shape = [self.grid_size*desc_raw_shape[0], self.grid_size*desc_raw_shape[1]]
-            desc = torch.nn.functional.interpolate(x, scale_factor=self.grid_size, mode="bilinear")
-            # desc = torch.nn.functional.normalize(desc, dim=1)
-            # safe, numerically stable version for TensorRT
-            norm = (desc * desc).sum(dim=1, keepdim=True).sqrt()
-            desc = desc / (norm + 1e-6)
-        else:
-            desc = torch.nn.functional.normalize(x, dim=1)
-
-        return x, desc
+        return x

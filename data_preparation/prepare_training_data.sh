@@ -25,15 +25,16 @@ export PYTHONPATH=$PYTHONPATH:$pwd
 
 # Set time surface delta
 delta_t="0.001 0.003 0.01 0.03 0.1"
+events_per_px="0.03 0.1 0.3 1.0"
 
 # Evaluate flags
-while getopts d:t:c:u flag
+while getopts d:t:c:w flag
 do
     case "${flag}" in
         d) data_dir=${OPTARG};;
         t) target_dir=${OPTARG};;
         c) config_path=${OPTARG};;
-        u) undistort=True;;
+        w) ts_with_const_time_window=True;;
     esac
 done
 
@@ -58,10 +59,10 @@ if [[ -z ${config_path} ]]; then
     echo "Assuming config file path as ${config_path}. You can use the flag '-c' to adjust the config file path."
 fi
 
-if [ "$undistort" = "" ]; then
-    echo "Undistortion of images and time surfaces is turned off by default. You can turn it on with the flag '-u'."
+if [ "$ts_with_const_time_window" = "" ]; then
+    echo "MCTS are created with constant number of events. To create MCTS with constant time window durations, pass the flag '-w'."
 else
-    echo "Undistortion turned on. Assuming a 'calib.txt' file in every sequence directory."
+    echo "MCTS are created with constant time window durations. To create MCTS with constant number of events, remove the flag '-w'."
 fi
 
 # Get dataset name
@@ -79,10 +80,14 @@ do
     mkdir -p ${sequence_target_dir}
 
     # Step 1: Convert images
-    python data_preparation/convert_images.py ${data_dir}/${seq} ${sequence_target_dir} ${dataset_name} --delta_t ${delta_t} --undistort "$undistort"
+    python data_preparation/convert_images.py ${data_dir}/${seq} ${sequence_target_dir} ${dataset_name} --delta_t ${delta_t}
 
     # Step 2: Generate time surfaces
-    python data_preparation/events2ts.py ${data_dir}/${seq} ${sequence_target_dir}/time_surfaces ${dataset_name} --timestamp_path ${sequence_target_dir}/frame_timestamps.txt --delta_t ${delta_t} --undistort "$undistort"
+    if [ "$ts_with_const_time_window" = "" ]; then
+        python data_preparation/events2ts.py ${data_dir}/${seq} ${sequence_target_dir}/time_surfaces ${dataset_name} --timestamp_path ${sequence_target_dir}/frame_timestamps.txt --events_per_px ${events_per_px}
+    else
+        python data_preparation/events2ts.py ${data_dir}/${seq} ${sequence_target_dir}/time_surfaces ${dataset_name} --timestamp_path ${sequence_target_dir}/frame_timestamps.txt --delta_t ${delta_t}
+    fi
 
     # Step 3: Detect and match features with SuperGlue
     if [[ -d ${sequence_target_dir}/sg_matches ]] || [[ -d ${target_dir}/train/${dataset_name}/${seq}/sg_matches ]]  || [[ -d ${target_dir}/val/${dataset_name}/${seq}/sg_matches ]]  || [[ -d ${target_dir}/test/${dataset_name}/${seq}/sg_matches ]]; then

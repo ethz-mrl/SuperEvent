@@ -2,19 +2,21 @@ import cv2
 import math
 import numpy as np
 
-def ts2image(ts):
+def ts2image(ts, channels=[0,1]):
     #ts = np.average(ts, axis=2)  # Take average over channels
     #ts = np.uint8(255. * ts)
     #ts = cv2.cvtColor(ts, cv2.COLOR_GRAY2BGR)
+    neg_channel = channels[0]
+    pos_channel = channels[1]
     ts_out = np.ones(list(ts.shape[:2]) + [3])
     #blue_values = ts[ts[..., 2] > 0][..., 2].T
     #red_values = ts[ts[..., 7] > 0][..., 7].T
     #ts_out[ts[..., 2] > 0] = np.array([np.ones_like(blue_values), 1. - blue_values, 1. - blue_values]).T
     #ts_out[ts[..., 7] > 0] = np.array([1. - red_values, 1. - red_values, np.ones_like(red_values)]).T
-    blue_values = ts[ts[..., 3] > 0][..., 3].T
-    red_values = ts[ts[..., 8] > 0][..., 8].T
-    ts_out[ts[..., 3] > 0] = np.array([np.ones_like(blue_values), 1. - blue_values, 1. - blue_values]).T
-    ts_out[ts[..., 8] > 0] = np.array([1. - red_values, 1. - red_values, np.ones_like(red_values)]).T
+    blue_values = ts[ts[..., neg_channel] > 0][..., neg_channel].T
+    red_values = ts[ts[..., pos_channel] > 0][..., pos_channel].T
+    ts_out[ts[..., neg_channel] > 0] = np.array([np.ones_like(blue_values), 1. - blue_values, 1. - blue_values]).T
+    ts_out[ts[..., pos_channel] > 0] = np.array([1. - red_values, 1. - red_values, np.ones_like(red_values)]).T
     ts_out = np.rint(ts_out * 255.).astype(np.uint8)
     return ts_out
 
@@ -38,7 +40,7 @@ def kp_map2matches(kp_maps):
     return match_list
 
 def visualize_time_surface(ts):
-    ts = ts2image(ts)
+    ts = ts2image(ts, channels=[6,7])
 
     cv2.imshow("Time Surface", ts)
     cv2.waitKey(0)

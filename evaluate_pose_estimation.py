@@ -16,16 +16,25 @@ import yaml
 from data.util import create_tencode_from_ts
 from data_preparation.util import helpers
 from models.super_event import SuperEvent, SuperEventFullRes
-from models.util import fast_nms
-from ts_generation.generate_ts import TsGenerator
+from models.util import fast_nms, interpolate_desc_grid
+from ts_generation.ts_generator import TsGenerator, TsGeneratorType
 from util import visualization
 from util.eval_utils import fix_seed
 
 def predict_keypoints(args, config, ts_shape, model, events, poses, start_time, end_time, cropped_shape=None, compiled=False):
     if cropped_shape == None:
         cropped_shape = ts_shape
-    settings = {"shape": ts_shape, "delta_t": args.model_delta_t}
-    ts_gen = TsGenerator(settings=settings, device=device)
+    if args.mcts_type == "dt":
+        settings = {"shape": ts_shape, "delta_t": args.model_delta_t}
+        ts_gen_type = TsGeneratorType.TimeWindow
+    elif args.mcts_type == "ne":
+        settings = {"shape": ts_shape, "events_per_px": args.model_events_per_px}
+        ts_gen_type = TsGeneratorType.EventCount
+    else:
+        raise NotImplementedError(f"{args.mcts_type} is not a supported identifier for mcts_type. \
+                                  Please pass the flag '--args.mcts_type' with either \
+                                  'ne' (constant number of events) or 'dt' (constant time window).")
+    ts_gen = TsGenerator(ts_gen_type, settings=settings, device=device)
 
     if args.dataset_name == "ecd":
         events = torch.from_numpy(events).to(device)
@@ -103,7 +112,7 @@ def predict_keypoints(args, config, ts_shape, model, events, poses, start_time, 
 
             # Non-maximum-surpression
             if compiled:
-                pred = {"prob": pred[0], "descriptors": pred[1].to(torch.float32)}
+                pred = {"prob": pred[0], "descriptor_grid": pred[1].to(torch.float32)}
             top_k = np.max(ts.shape) // 2
             start_t_measurement = time.time()
             kpts, _ = fast_nms(pred["prob"], config, top_k=top_k)
@@ -112,7 +121,11 @@ def predict_keypoints(args, config, ts_shape, model, events, poses, start_time, 
             nms_iterations += 1
 
             # Extract descriptors
-            desc = pred["descriptors"][0, :, kpts[0][:, 0], kpts[0][:, 1]].permute(1, 0).cpu().detach().numpy()
+            start_t_measurement = time.time()
+            desc_grid = pred["descriptor_grid"]
+            desc = interpolate_desc_grid(desc_grid, kpts[0], cropped_shape)
+            model_inference_time += (time.time() - start_t_measurement)
+            desc = desc[0].permute(1, 0).cpu().detach().numpy()
             kpts = kpts[0].cpu().detach().numpy()
 
             # Move kpts to original positions
@@ -125,7 +138,7 @@ def predict_keypoints(args, config, ts_shape, model, events, poses, start_time, 
 
             if args.visualize:
                 # Save for visualization
-                ts_vis_list.append(cv2.cvtColor(visualization.ts2image(ts[0].detach().cpu().numpy().transpose(1,2,0)), cv2.COLOR_BGR2GRAY))
+                ts_vis_list.append(cv2.cvtColor(visualization.ts2image(ts[0].detach().cpu().numpy().transpose(1,2,0), channels=[7,8]), cv2.COLOR_BGR2GRAY))
 
     return pred_list, ts_vis_list, model_inference_time, model_inference_iterations, nms_time, nms_iterations
 
@@ -284,6 +297,8 @@ parser.add_argument("--sequence_names", nargs="*", default=[], help="Names of ev
 parser.add_argument("--config", default="config/super_event.yaml", help="Parameter configuration.")
 parser.add_argument("--model", default="", help="Model weights to be evaluated. If not specified, the most recent weights in saved_models/ are used.")
 parser.add_argument("--model_delta_t", nargs="*", default=[0.001, 0.003, 0.01, 0.03, 0.1], type=float, help="Time delta of time surfaces")
+parser.add_argument("--model_events_per_px", nargs="*", default=[0.03, 0.1, 0.3, 1.0], type=float, help="Number of events per channel in time surfaces")
+parser.add_argument("--mcts_type", default="ne", help="Constant number of events (ne) or constant time window duration (dt) per channel.")
 parser.add_argument("--max_eval_delta_t", nargs="*", default=2.0, type=float, help="List of durations between testing the repeatability")
 parser.add_argument("--auc_thresholds",  nargs="*", default=[5.0, 10.0, 20.0], help="Thresholds for AUC evaluation.")
 parser.add_argument('--visualize', default=False, action=argparse.BooleanOptionalAction, help="Visualize matches, only for debugging")

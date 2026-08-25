@@ -55,3 +55,26 @@ def fast_nms(prob, config, top_k=None):
             prob_batch[batch] = prob_batch[batch][:top_k]
 
     return pts_batch, prob_batch
+
+def pixel_to_normalized(px, shape):
+    px = px.float()
+    px[..., 0] = (px[..., 0] + 0.5) / shape[-2] * 2 - 1
+    px[..., 1] = (px[..., 1] + 0.5) / shape[-1] * 2 - 1
+    return px
+
+def interpolate_desc_grid(desc_grid, kpts, shape):
+    # Sanity checks
+    while len(kpts.shape) < 4:
+        kpts = kpts.unsqueeze(0)
+    if len(desc_grid.shape) < 4:
+        desc_grid = desc_grid.unsqueeze(0)
+
+    # Interpolate
+    kpts = pixel_to_normalized(kpts, shape)
+    kpts = kpts.flip(-1)
+    desc = torch.nn.functional.grid_sample(desc_grid, kpts, mode="bilinear", padding_mode="border", align_corners=False)
+    desc.squeeze_(-2)
+    norm = (desc * desc).sum(dim=1, keepdim=True).sqrt()
+    desc = desc / (norm + 1e-6)
+
+    return desc

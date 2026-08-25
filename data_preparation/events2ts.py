@@ -10,7 +10,7 @@ import torch
 from tqdm import tqdm
 
 from data_preparation.util import data_io, helpers
-from ts_generation.generate_ts import TsGenerator
+from ts_generation.ts_generator import TsGenerator, TsGeneratorType
 
 if __name__ == "__main__": 
     parser = argparse.ArgumentParser()
@@ -19,12 +19,10 @@ if __name__ == "__main__":
     parser.add_argument("dataset", help="Name of dataset to be used")
     parser.add_argument("--timestamp_path", default="", help="Path to timestamp file")
     parser.add_argument("--delta_t", nargs="*", default=[], type=float, help="Time delta of time surfaces")
+    parser.add_argument("--events_per_px", nargs="*", default=[], type=float, help="Number of events per channel in time surfaces")
     parser.add_argument("--shape", nargs=2, default=[], type=int, help="Image shape")
-    parser.add_argument("--undistort", default="")
     parser.add_argument("--frequency", default=0, type=int, help="Frequency of time surfaces")
     args = parser.parse_args()
-
-    undistort = args.undistort != ""
 
     # Check if output dir already exists
     existing_path = helpers.check_already_exists(args.out_dir)
@@ -36,8 +34,6 @@ if __name__ == "__main__":
     required_data = [data_io.RequiredData.events]
     if args.timestamp_path == "":
         required_data.append(data_io.RequiredData.image_stamps)
-    if undistort:
-        required_data.append(data_io.RequiredData.calib)
     events, _, image_timestamps, calib = data_io.load_dataset(args.dataset, args.in_dir, required_data)
 
     # Load timestamp from different path if specified
@@ -66,10 +62,6 @@ if __name__ == "__main__":
             l = len(additional_ts_timestamps)
             additional_ts_timestamps[l:l] = ts_timestamps
 
-    # Convert calib
-    if undistort:
-        camera_matrix, distortion_coeffs = helpers.get_camera_matrix_and_distortion_coeffs(calib)
-
     # Cast events to correct data types
     events_t = torch.tensor(events[:, 0].astype(np.float32))
     events_x = torch.tensor(events[:, 2].astype(np.int16))  # we use (row, column) instead of (x, y) coordinates
@@ -82,18 +74,17 @@ if __name__ == "__main__":
         args.shape = [torch.max(events_x).item() + 1, torch.max(events_y).item() + 1]
         print("Inferred shape as", args.shape)
 
-    settings = {"shape": args.shape, "delta_t": args.delta_t}
-    if undistort and (args.dataset == "mvsec" or args.dataset == "griffin"):
-        settings["fisheye_lens"] = True
-        settings["new_camera_matrix"] = cv2.fisheye.estimateNewCameraMatrixForUndistortRectify(K=camera_matrix, D=distortion_coeffs[:4], image_size=args.shape, R=None, balance=1.0)
-        settings["crop_to_idxs"] = helpers.calculate_valid_image_shape(args.shape, camera_matrix, distortion_coeffs, settings["new_camera_matrix"])
-
-    if undistort:
-        settings["undistort"] = True
-        ts_gen = TsGenerator(camera_matrix=camera_matrix, distortion_coeffs=distortion_coeffs, settings=settings)
+    assert len(args.delta_t) == 0 or len(args.events_per_px) == 0, "Only one of delta_t and events_per_px must be set."
+    if len(args.delta_t) > 0:
+        settings = {"shape": args.shape, "delta_t": args.delta_t}
+        ts_gen_type = TsGeneratorType.TimeWindow
+    elif len(args.events_per_px) > 0:
+        settings = {"shape": args.shape, "events_per_px": args.events_per_px}
+        ts_gen_type = TsGeneratorType.EventCount
     else:
-        settings["undistort"] = False
-        ts_gen = TsGenerator(settings=settings)
+        raise ValueError("delta_t or events_per_px must be set.")
+
+    ts_gen = TsGenerator(tsGenType=ts_gen_type, settings=settings)
 
     print("Generating time surfaces.")
     start_time = time()
@@ -111,13 +102,17 @@ if __name__ == "__main__":
     add_ts_idx = 0
 
     for i in tqdm(range(len(events_t))):
-        if timestamp < events_t[i]:            
-            # Create current time surface
-            ts = ts_gen.get_ts().numpy()
+        if timestamp < events_t[i]:
+            if ts_gen.is_buffer_initialized():  # Make sure enough events were read
+                # Create current time surface
+                ts = ts_gen.get_ts().numpy()
 
-            # Directly save ts to not run out of RAM
-            output_ts_path = os.path.join(args.out_dir, f"{str(ts_idx).zfill(8)}")
-            data_io.save_ts_sparse(output_ts_path, ts)
+                # Directly save ts to not run out of RAM
+                output_ts_path = os.path.join(args.out_dir, f"{str(ts_idx).zfill(8)}")
+                data_io.save_ts_sparse(output_ts_path, ts)
+            else:
+                print(f"Warning: Skipping time surface with index {str(ts_idx).zfill(8)} since the time surface generator's buffer is not fully initialized.")
+
             ts_idx += 1
             add_ts_idx = 0
 
@@ -126,12 +121,16 @@ if __name__ == "__main__":
                 break
 
         if args.frequency and additional_timestamp < events_t[i]:
-            # Create current time surface
-            ts = ts_gen.get_ts()
+            if ts_gen.is_buffer_initialized():  # Make sure enough events were read
+                # Create current time surface
+                ts = ts_gen.get_ts()
 
-            # Directly save ts to not run out of RAM
-            output_ts_path = os.path.join(args.out_dir, f"{str(ts_idx).zfill(8)}_{str(add_ts_idx).zfill(4)}")
-            data_io.save_ts_sparse(output_ts_path, ts)
+                # Directly save ts to not run out of RAM
+                output_ts_path = os.path.join(args.out_dir, f"{str(ts_idx).zfill(8)}_{str(add_ts_idx).zfill(4)}")
+                data_io.save_ts_sparse(output_ts_path, ts)
+            else:
+                print(f"Warning: Skipping additional time surface with index {str(ts_idx).zfill(8)}_{str(add_ts_idx).zfill(4)} since the time surface generator's buffer is not fully initialized.")
+
             add_ts_idx += 1
 
             additional_timestamp = next(additional_timestamps_iter, np.inf)

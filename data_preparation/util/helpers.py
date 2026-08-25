@@ -37,12 +37,3 @@ def get_camera_matrix_and_distortion_coeffs(calib_data):
     )
 
     return camera_matrix, distortion_coeffs
-
-def calculate_valid_image_shape(orig_img_shape, camera_matrix, distortion_coeffs, new_camera_matrix):
-    sample_img = np.ones(orig_img_shape)
-    undist_sample_img = cv2.fisheye.undistortImage(sample_img, K=camera_matrix, D=distortion_coeffs[:4], Knew=new_camera_matrix)
-
-    # Check range of valid pixels in the center row and column
-    valid_idx = [(undist_sample_img[:, round(orig_img_shape[1]/2.)] > 0.).nonzero()[0], (undist_sample_img[round(orig_img_shape[0]/2.)] > 0.).nonzero()[0]]
-    valid_idx = [valid_idx[0][0], valid_idx[0][-1], valid_idx[1][0], valid_idx[1][-1]]
-    return valid_idx

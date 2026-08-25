@@ -12,19 +12,33 @@ from torch.utils.data import DataLoader
 
 from data.dataset import DataSplit, DatasetCollection
 from models.super_event import SuperEvent, SuperEventFullRes
-from models.util import fast_nms
-from util.eval_utils import extract_keypoints_and_descriptors
+from models.util import fast_nms, interpolate_desc_grid
+from util.eval_utils import extract_keypoints
 from util.train_utils import list2device
 from util.visualization import ts2image, visualize_matches, resize_and_make_border
 
 # Parse args
 parser = argparse.ArgumentParser()
-parser.add_argument("--model", default="", help="Model weights to be evaluated. If not specified, the most recent weights in saved_models/ are used.")
-parser.add_argument("--config", default="config/super_event.yaml", help="Parameter configuration.")
+parser.add_argument("--config", default="config/super_event_plus.yaml", help="Parameter configuration.")
+parser.add_argument("--model", default="", help="Model weights to be evaluated. If not specified, weights saved_models/<config_name>_weights.pth are used.")
 parser.add_argument("--dataset", default="", help="Name of dataset to be used.")
 parser.add_argument("--save_dir", default="", help="Save figures in this directory.")
 parser.add_argument("--demo", default=False, action=argparse.BooleanOptionalAction, help="Show matches for samples with few matches in the corresponding frames.")
 args = parser.parse_args()
+
+device = (
+    "cuda"
+    if torch.cuda.is_available()
+    else "mps"
+    if torch.backends.mps.is_available()
+    else "cpu"
+)
+print(f"Using {device} device")
+
+# Flip images for some datasets
+flip_img = False
+if args.dataset == "ddd20" or args.dataset == "vivid":
+    flip_img = True
 
 if args.save_dir:
     os.makedirs(args.save_dir, exist_ok=True)
@@ -60,28 +74,19 @@ if args.dataset:
 
 # Load model
 if args.model == "":
-    # Use most recent model in saved_models
-    list_of_files = glob("saved_models/*.pth")
-    args.model = max(list_of_files, key=os.path.getctime)
+    # Use name of config
+    args.model = "saved_models/" + os.path.splitext(os.path.basename(args.config))[0] + "_weights.pth"
+    if not os.path.exists(args.model):
+        raise RuntimeError("Please provide model weights after flag '--model'.")
 
 if config["pixel_wise_predictions"]:
     model = SuperEventFullRes(config)
 else:
     model = SuperEvent(config)
 
-model.load_state_dict(torch.load(args.model, weights_only=True))
+model.load_state_dict(torch.load(args.model, weights_only=True, map_location=torch.device(device)))
 model.eval()
 print("Loaded model weights from", args.model)
-
-device = (
-    "cuda"
-    if torch.cuda.is_available()
-    else "mps"
-    if torch.backends.mps.is_available()
-    else "cpu"
-)
-print(f"Using {device} device")
-
 model.to(device)
 
 test_data = DatasetCollection(DataSplit.test, config, vis_mode=True, demo=args.demo)
@@ -101,8 +106,18 @@ with torch.inference_mode():
         # Convert to plottable images
         img0 = data[0][0].detach().numpy().transpose(1, 2, 0)  # channels last
         img1 = data[1][0].detach().numpy().transpose(1, 2, 0)
-        img0 = ts2image(img0)
-        img1 = ts2image(img1)
+
+        # Different ordering convention for both MCTS variants
+        num_channels = ts0.shape[1]
+        if num_channels == 10:
+            img0 = ts2image(img0, channels=[3,8])
+            img1 = ts2image(img1, channels=[3,8])
+        elif num_channels == 8:
+            img0 = ts2image(img0, channels=[4,5])
+            img1 = ts2image(img1, channels=[4,5])
+        elif num_channels > 3:
+            img0 = ts2image(img0, channels=[0,1])
+            img1 = ts2image(img1, channels=[0,1])
 
         # Flip images for some datasets
         flip = False
@@ -137,16 +152,18 @@ with torch.inference_mode():
         results = model(torch.cat([ts0, ts1], dim=0))
 
         # Non-maximum suppression
-        num_kpts = int(np.max(data[2][0].detach().numpy()))
-        if args.demo:
-            num_kpts = results["prob"].shape[-2]
+        num_kpts = results["prob"].shape[-2]
         points_nms, _ = fast_nms(results["prob"], config, top_k=num_kpts)
 
-        desc_map0 = results["descriptors"][0].cpu().detach().numpy().transpose(1, 2, 0)  # channels last
-        desc_map1 = results["descriptors"][1].cpu().detach().numpy().transpose(1, 2, 0)
+        # Extract descriptors
+        desc0 = interpolate_desc_grid(results["descriptor_grid"][0], points_nms[0], ts0.shape)
+        desc1 = interpolate_desc_grid(results["descriptor_grid"][1], points_nms[1], ts1.shape)
+        desc0 = desc0[0].permute(1, 0).cpu().detach().numpy()
+        desc1 = desc1[0].permute(1, 0).cpu().detach().numpy()
 
-        kpts0, desc0 = extract_keypoints_and_descriptors(points_nms[0].cpu().detach().numpy(), desc_map0, config["detection_threshold"], resize_factor=resize_factor)
-        kpts1, desc1 = extract_keypoints_and_descriptors(points_nms[1].cpu().detach().numpy(), desc_map1, config["detection_threshold"], resize_factor=resize_factor)
+        # Extract keypoints
+        kpts0 = extract_keypoints(points_nms[0].cpu().detach().numpy(), config["detection_threshold"], resize_factor=resize_factor)
+        kpts1 = extract_keypoints(points_nms[1].cpu().detach().numpy(), config["detection_threshold"], resize_factor=resize_factor)
 
         bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True)
         try:
