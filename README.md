@@ -26,8 +26,10 @@
 <div align="center">
     <a href="https://arxiv.org/abs/2605.07885" target="_blank">
     <img src="https://img.shields.io/badge/Paper-arXiv-green" alt="Paper arXiv"></a>
+    <a href="https://ieeexplore.ieee.org/document/11661676" target="_blank">
+    <img src="https://img.shields.io/badge/Paper-IEEE-blue" alt="Paper IEEE"></a>
     <a href="https://ethz-mrl.github.io/AERO-VIS/" target="_blank">
-    <img src="https://img.shields.io/badge/Page-AERO--VIS-blue" alt="Project Page"/></a>
+    <img src="https://img.shields.io/badge/Page-AERO--VIS-darkgreen" alt="Project Page"/></a>
     <a href="https://youtu.be/gM7SNVuPbXg" target="_blank">
     <img src="https://img.shields.io/badge/Video-YouTube-red"></a>
 </div>
@@ -133,7 +135,7 @@ python export/export_model.py saved_models/super_event_plus_weights.pth --config
 ### 2. ONNX -> TensorRT
 To export the model to ONNX, please install the follwing additional dependencies:
 ```bash
-pip install onnx onnxruntime onnxscript
+pip install onnx==1.18.0 onnxruntime==1.23.2 onnxscript==0.5.6
 ```
 
 To export a model with fixed shape and batch size in fp16 precision to onnx, the following flags can be used:
