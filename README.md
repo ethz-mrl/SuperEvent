@@ -153,20 +153,23 @@ Instructions on how to convert the ONNX model to TensorRT can be found in [super
 ## Citation
 If you find our work useful, please cite one of the following works:
 ```bibtex
-@InProceedings{Burkhardt_2025_ICCV,
-    author    = {Burkhardt, Yannick and Schaefer, Simon and Leutenegger, Stefan},
-    title     = {SuperEvent: Cross-Modal Learning of Event-based Keypoint Detection for SLAM},
-    booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
-    month     = {October},
-    year      = {2025},
-    pages     = {8918-8928}
+@InProceedings{burkhardt2025superevent,
+  author    = {Burkhardt, Yannick and Schaefer, Simon and Leutenegger, Stefan},
+  title     = {SuperEvent: Cross-Modal Learning of Event-based Keypoint Detection for SLAM},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  month     = {October},
+  year      = {2025},
+  pages     = {8918-8928}
 }
 ```
 ```bibtex
-@article{Burkhardt_2026_RAL,
-    title={{AERO-VIS}: Asynchronous Event-based Real-time Onboard Visual-Inertial {SLAM}},
-    author={Burkhardt, Yannick and Barbas Laina, Sebasti\'an and Boche, Simon and Frei{\ss}muth, Leonard and Leutenegger, Stefan},
-    journal={IEEE Robotics and Automation Letters},
-    year={2026}
+@article{burkhardt2026aerovis,
+  title={{AERO-VIS}: Asynchronous Event-based Real-time Onboard Visual-Inertial {SLAM}},
+  author={Burkhardt, Yannick and Barbas Laina, Sebasti\'an and Boche, Simon and Frei{\ss}muth, Leonard and Leutenegger, Stefan},
+  journal={IEEE Robotics and Automation Letters},
+  year={2026},
+  volume={11},
+  number={10},
+  pages={11689-11696}
 }
 ```
